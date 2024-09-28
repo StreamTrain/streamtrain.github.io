@@ -36,6 +36,7 @@
             overflow: hidden;
             width: 320px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative; /* Make position relative for button positioning */
         }
         iframe {
             width: 100%;
@@ -53,12 +54,25 @@
             font-size: 1.1em;
             font-weight: bold;
             color: #4CAF50;
+            padding-bottom: 30px; /* Add padding to the bottom */
         }
         footer {
             text-align: center;
             padding: 10px;
             background-color: #333;
             color: white;
+        }
+        /* Styles for mute/unmute button */
+        .mute-button {
+            position: absolute;
+            bottom: 10px; /* Position at the bottom */
+            left: 10px; /* Position from the left */
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
         }
     </style>
     <!-- hls.js from CDN -->
@@ -72,16 +86,18 @@
 </header>
 
 <div class="container">
-    <!-- Embed YouTube Traincam -->
-    <div class="traincam">
-        <iframe src="https://www.youtube.com/embed/live_stream_id" frameborder="0" allowfullscreen></iframe>
-        <div class="traincam-title">Traincam 1 - [Location]</div>
-    </div>
-
-    <!-- m3u8 Stream Traincam -->
+    <!-- m3u8 Stream Traincam - Brunel Cam -->
     <div class="traincam">
         <video id="brunel-cam" playsinline autoplay muted></video>
-        <div class="traincam-title">Traincam 2 - Brunel Cam</div>
+        <div class="traincam-title">Brunel Holiday Park Cam</div>
+        <button class="mute-button" id="mute-button">Unmute</button>
+    </div>
+
+    <!-- m3u8 Stream Traincam - Blenheim Cam -->
+    <div class="traincam">
+        <video id="blenheim-cam" playsinline autoplay muted></video>
+        <div class="traincam-title">Blenheim, Dawlish</div>
+        <button class="mute-button" id="mute-button-blenheim">Unmute</button>
     </div>
 
     <!-- Add more traincams as needed -->
@@ -94,58 +110,97 @@
 <script>
     // HLS.js support for m3u8 streams
     if (Hls.isSupported()) {
-        var video = document.getElementById('brunel-cam');
-        var hls = new Hls();
-        hls.loadSource('https://5a6f905a69aae.streamlock.net/DWW_Brunel_Cam/_definst_/DWW_Brunel.stream/playlist.m3u8');
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+        // Brunel Cam
+        var brunelVideo = document.getElementById('brunel-cam');
+        var brunelHls = new Hls();
+        brunelHls.loadSource('https://5a6f905a69aae.streamlock.net/DWW_Brunel_Cam/_definst_/DWW_Brunel.stream/playlist.m3u8');
+        brunelHls.attachMedia(brunelVideo);
+        brunelHls.on(Hls.Events.MANIFEST_PARSED, function() {
             // Start playing automatically
-            video.play();
+            brunelVideo.play();
+        });
+
+        // Blenheim Cam
+        var blenheimVideo = document.getElementById('blenheim-cam');
+        var blenheimHls = new Hls();
+        blenheimHls.loadSource('https://5a6f905a69aae.streamlock.net/DWL_Blenheim_Cam/smil:DWL_Blenheim.smil/playlist.m3u8');
+        blenheimHls.attachMedia(blenheimVideo);
+        blenheimHls.on(Hls.Events.MANIFEST_PARSED, function() {
+            // Start playing automatically
+            blenheimVideo.play();
         });
 
         // Stop playback when the video is paused and resume live when played again
-        video.addEventListener('pause', function() {
-            hls.pause(); // Pause HLS streaming
+        [brunelVideo, blenheimVideo].forEach(video => {
+            video.addEventListener('pause', function() {
+                (video === brunelVideo ? brunelHls : blenheimHls).pause(); // Pause HLS streaming
+            });
+
+            video.addEventListener('play', function() {
+                // Resume live stream from the current live position
+                (video === brunelVideo ? brunelHls : blenheimHls).startLoad();
+            });
         });
 
-        video.addEventListener('play', function() {
-            // Resume live stream from the current live position
-            hls.startLoad();
-        });
-
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    } else if (blenheimVideo.canPlayType('application/vnd.apple.mpegurl')) {
         // For Safari, which natively supports m3u8
-        video.src = 'https://5a6f905a69aae.streamlock.net/DWW_Brunel_Cam/_definst_/DWW_Brunel.stream/playlist.m3u8';
-        video.addEventListener('loadedmetadata', function() {
-            video.play();
+        blenheimVideo.src = 'https://5a6f905a69aae.streamlock.net/DWL_Blenheim_Cam/smil:DWL_Blenheim.smil/playlist.m3u8';
+        blenheimVideo.addEventListener('loadedmetadata', function() {
+            blenheimVideo.play();
         });
 
         // Stop playback when the video is paused and resume live when played again
-        video.addEventListener('pause', function() {
-            video.pause(); // Ensure it doesn't allow buffering
+        blenheimVideo.addEventListener('pause', function() {
+            blenheimVideo.pause(); // Ensure it doesn't allow buffering
         });
 
-        video.addEventListener('play', function() {
-            video.play(); // Resume live stream from the current live position
+        blenheimVideo.addEventListener('play', function() {
+            blenheimVideo.play(); // Resume live stream from the current live position
         });
     }
 
     // Fullscreen toggle functionality on video click
-    video.addEventListener('click', function() {
-        if (document.fullscreenElement) {
-            // Exit fullscreen if currently in fullscreen
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
+    [brunelVideo, blenheimVideo].forEach(video => {
+        video.addEventListener('click', function() {
+            if (document.fullscreenElement) {
+                // Exit fullscreen if currently in fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            } else {
+                // Enter fullscreen
+                if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                } else if (video.webkitRequestFullscreen) { // Safari
+                    video.webkitRequestFullscreen();
+                } else if (video.msRequestFullscreen) { // IE/Edge
+                    video.msRequestFullscreen();
+                }
             }
+        });
+    });
+
+    // Mute/Unmute functionality for Brunel Cam
+    var muteButtonBrunel = document.getElementById('mute-button');
+    muteButtonBrunel.addEventListener('click', function() {
+        if (brunelVideo.muted) {
+            brunelVideo.muted = false;
+            muteButtonBrunel.textContent = 'Mute';
         } else {
-            // Enter fullscreen
-            if (video.requestFullscreen) {
-                video.requestFullscreen();
-            } else if (video.webkitRequestFullscreen) { // Safari
-                video.webkitRequestFullscreen();
-            } else if (video.msRequestFullscreen) { // IE/Edge
-                video.msRequestFullscreen();
-            }
+            brunelVideo.muted = true;
+            muteButtonBrunel.textContent = 'Unmute';
+        }
+    });
+
+    // Mute/Unmute functionality for Blenheim Cam
+    var muteButtonBlenheim = document.getElementById('mute-button-blenheim');
+    muteButtonBlenheim.addEventListener('click', function() {
+        if (blenheimVideo.muted) {
+            blenheimVideo.muted = false;
+            muteButtonBlenheim.textContent = 'Mute';
+        } else {
+            blenheimVideo.muted = true;
+            muteButtonBlenheim.textContent = 'Unmute';
         }
     });
 </script>
