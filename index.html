@@ -100,6 +100,13 @@
         <button class="mute-button" id="mute-button-blenheim">Unmute</button>
     </div>
 
+    <!-- m3u8 Stream Traincam - Crewe Heritage Centre -->
+    <div class="traincam">
+        <video id="crewe-cam" playsinline autoplay muted></video>
+        <div class="traincam-title">Crewe Heritage Centre</div>
+        <button class="mute-button" id="mute-button-crewe">Unmute</button>
+    </div>
+
     <!-- Add more traincams as needed -->
 </div>
 
@@ -130,15 +137,25 @@
             blenheimVideo.play();
         });
 
+        // Crewe Heritage Centre Cam
+        var creweVideo = document.getElementById('crewe-cam');
+        var creweHls = new Hls();
+        creweHls.loadSource('https://paxman.railcam.co.uk/Crewe3_13496/index.m3u8');
+        creweHls.attachMedia(creweVideo);
+        creweHls.on(Hls.Events.MANIFEST_PARSED, function() {
+            // Start playing automatically
+            creweVideo.play();
+        });
+
         // Stop playback when the video is paused and resume live when played again
-        [brunelVideo, blenheimVideo].forEach(video => {
+        [brunelVideo, blenheimVideo, creweVideo].forEach(video => {
             video.addEventListener('pause', function() {
-                (video === brunelVideo ? brunelHls : blenheimHls).pause(); // Pause HLS streaming
+                (video === brunelVideo ? brunelHls : video === blenheimVideo ? blenheimHls : creweHls).pause(); // Pause HLS streaming
             });
 
             video.addEventListener('play', function() {
                 // Resume live stream from the current live position
-                (video === brunelVideo ? brunelHls : blenheimHls).startLoad();
+                (video === brunelVideo ? brunelHls : video === blenheimVideo ? blenheimHls : creweHls).startLoad();
             });
         });
 
@@ -160,7 +177,7 @@
     }
 
     // Fullscreen toggle functionality on video click
-    [brunelVideo, blenheimVideo].forEach(video => {
+    [brunelVideo, blenheimVideo, creweVideo].forEach(video => {
         video.addEventListener('click', function() {
             if (document.fullscreenElement) {
                 // Exit fullscreen if currently in fullscreen
@@ -201,6 +218,18 @@
         } else {
             blenheimVideo.muted = true;
             muteButtonBlenheim.textContent = 'Unmute';
+        }
+    });
+
+    // Mute/Unmute functionality for Crewe Cam
+    var muteButtonCrewe = document.getElementById('mute-button-crewe');
+    muteButtonCrewe.addEventListener('click', function() {
+        if (creweVideo.muted) {
+            creweVideo.muted = false;
+            muteButtonCrewe.textContent = 'Mute';
+        } else {
+            creweVideo.muted = true;
+            muteButtonCrewe.textContent = 'Unmute';
         }
     });
 </script>
