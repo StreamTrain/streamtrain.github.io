@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamTrain - Live Train Cameras</title>
+    <style>
+        body {
+            background-color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            gap: 20px;
+        }
+        .traincam {
+            background-color: white;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 320px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        iframe {
+            width: 100%;
+            height: 180px;
+        }
+        video {
+            width: 100%;
+            height: 180px;
+        }
+        .traincam-title {
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+        }
+    </style>
+    <!-- hls.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+
+<header>
+    <h1>StreamTrain</h1>
+    <p>Watch live train cameras from across the world</p>
+</header>
+
+<div class="container">
+    <!-- Embed YouTube Traincam -->
+    <div class="traincam">
+        <iframe src="https://www.youtube.com/embed/live_stream_id" frameborder="0" allowfullscreen></iframe>
+        <div class="traincam-title">Traincam 1 - [Location]</div>
+    </div>
+
+    <!-- m3u8 Stream Traincam -->
+    <div class="traincam">
+        <video id="brunel-cam" controls></video>
+        <div class="traincam-title">Traincam 2 - Brunel Cam</div>
+    </div>
+
+    <!-- Add more traincams as needed -->
+</div>
+
+<footer>
+    <p>&copy; 2024 StreamTrain. All rights reserved.</p>
+</footer>
+
+<script>
+    // HLS.js support for m3u8 streams
+    if (Hls.isSupported()) {
+        var video = document.getElementById('brunel-cam');
+        var hls = new Hls();
+        hls.loadSource('https://5a6f905a69aae.streamlock.net/DWW_Brunel_Cam/_definst_/DWW_Brunel.stream/playlist.m3u8');
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+            video.play();
+        });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        // For Safari, which natively supports m3u8
+        video.src = 'https://5a6f905a69aae.streamlock.net/DWW_Brunel_Cam/_definst_/DWW_Brunel.stream/playlist.m3u8';
+        video.addEventListener('loadedmetadata', function() {
+            video.play();
+        });
+    }
+</script>
+
+</body>
+</html>
