@@ -44,6 +44,7 @@
         video {
             width: 100%;
             height: 180px;
+            cursor: pointer; /* Indicate that the video is clickable */
         }
         .traincam-title {
             text-align: center;
@@ -79,7 +80,7 @@
 
     <!-- m3u8 Stream Traincam -->
     <div class="traincam">
-        <video id="brunel-cam" controls></video>
+        <video id="brunel-cam" playsinline autoplay muted></video>
         <div class="traincam-title">Traincam 2 - Brunel Cam</div>
     </div>
 
@@ -98,15 +99,55 @@
         hls.loadSource('https://5a6f905a69aae.streamlock.net/DWW_Brunel_Cam/_definst_/DWW_Brunel.stream/playlist.m3u8');
         hls.attachMedia(video);
         hls.on(Hls.Events.MANIFEST_PARSED, function() {
+            // Start playing automatically
             video.play();
         });
+
+        // Stop playback when the video is paused and resume live when played again
+        video.addEventListener('pause', function() {
+            hls.pause(); // Pause HLS streaming
+        });
+
+        video.addEventListener('play', function() {
+            // Resume live stream from the current live position
+            hls.startLoad();
+        });
+
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         // For Safari, which natively supports m3u8
         video.src = 'https://5a6f905a69aae.streamlock.net/DWW_Brunel_Cam/_definst_/DWW_Brunel.stream/playlist.m3u8';
         video.addEventListener('loadedmetadata', function() {
             video.play();
         });
+
+        // Stop playback when the video is paused and resume live when played again
+        video.addEventListener('pause', function() {
+            video.pause(); // Ensure it doesn't allow buffering
+        });
+
+        video.addEventListener('play', function() {
+            video.play(); // Resume live stream from the current live position
+        });
     }
+
+    // Fullscreen toggle functionality on video click
+    video.addEventListener('click', function() {
+        if (document.fullscreenElement) {
+            // Exit fullscreen if currently in fullscreen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        } else {
+            // Enter fullscreen
+            if (video.requestFullscreen) {
+                video.requestFullscreen();
+            } else if (video.webkitRequestFullscreen) { // Safari
+                video.webkitRequestFullscreen();
+            } else if (video.msRequestFullscreen) { // IE/Edge
+                video.msRequestFullscreen();
+            }
+        }
+    });
 </script>
 
 </body>
