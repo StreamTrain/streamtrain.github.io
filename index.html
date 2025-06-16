@@ -1,238 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StreamTrain - Live Train Cameras</title>
-    <style>
-        body {
-            background-color: #e0e0e0;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            color: #333;
-        }
-        header {
-            background-color: #4CAF50;
-            padding: 20px;
-            text-align: center;
-            color: white;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 2.5em;
-        }
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 20px;
-            gap: 20px;
-        }
-        .traincam {
-            background-color: white;
-            border: 2px solid #ccc;
-            border-radius: 10px;
-            overflow: hidden;
-            width: 320px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            position: relative; /* Make position relative for button positioning */
-        }
-        iframe {
-            width: 100%;
-            height: 180px;
-        }
-        video {
-            width: 100%;
-            height: 180px;
-            cursor: pointer; /* Indicate that the video is clickable */
-        }
-        .traincam-title {
-            text-align: center;
-            background-color: #f4f4f4;
-            padding: 10px;
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #4CAF50;
-            padding-bottom: 30px; /* Add padding to the bottom */
-        }
-        footer {
-            text-align: center;
-            padding: 10px;
-            background-color: #333;
-            color: white;
-        }
-        /* Styles for mute/unmute button */
-        .mute-button {
-            position: absolute;
-            bottom: 10px; /* Position at the bottom */
-            left: 10px; /* Position from the left */
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-    </style>
-    <!-- hls.js from CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StreamTrain - Live Train Cameras</title>
+  <style>
+    body {
+      background-color: #f2f2f2;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    header {
+      background: linear-gradient(to right, #4CAF50, #45A049);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 3rem;
+    }
+
+    header p {
+      margin: 10px 0 0;
+      font-size: 1.2rem;
+    }
+
+    .ad-banner {
+      background-color: #fff;
+      color: #4CAF50;
+      text-align: center;
+      padding: 15px;
+      font-weight: bold;
+      font-size: 1rem;
+      margin: 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .ad-banner a {
+      color: #0078d7;
+      text-decoration: none;
+    }
+
+    .ad-banner a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .traincam {
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s;
+    }
+
+    .traincam:hover {
+      transform: scale(1.02);
+    }
+
+    video, iframe {
+      width: 100%;
+      height: 180px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .traincam-title {
+      text-align: center;
+      background-color: #f9f9f9;
+      padding: 12px;
+      font-weight: 600;
+      color: #4CAF50;
+      font-size: 1.1rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background-color: #333;
+      color: white;
+      font-size: 0.9rem;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 
-<header>
+  <header>
     <h1>StreamTrain</h1>
     <p>Watch live train cameras from across the UK</p>
-</header>
+  </header>
 
-<div class="container">
-    <!-- m3u8 Stream Traincam - Brunel Cam -->
-    <div class="traincam">
-        <video id="brunel-cam" playsinline autoplay muted></video>
-        <div class="traincam-title">Brunel Holiday Park, Dawlish</div>
-        <button class="mute-button" id="mute-button">Unmute</button>
-    </div>
+  <div class="ad-banner">
+    Love classic trains? Watch every Thomas and Friends episode online free at <a href="https://thomasarchive.vercel.app" target="_blank">ThomasArchive</a>!
+  </div>
 
-    <!-- m3u8 Stream Traincam - Blenheim Cam -->
-    <div class="traincam">
-        <video id="blenheim-cam" playsinline autoplay muted></video>
-        <div class="traincam-title">Blenheim, Dawlish</div>
-        <button class="mute-button" id="mute-button-blenheim">Unmute</button>
-    </div>
+  <main class="container" id="camera-container">
+    <!-- Cameras will be loaded dynamically from cams.json -->
+  </main>
 
-    <!-- m3u8 Stream Traincam - Crewe Heritage Centre -->
-    <div class="traincam">
-        <video id="crewe-cam" playsinline autoplay muted></video>
-        <div class="traincam-title">Crewe Heritage Centre</div>
-        <button class="mute-button" id="mute-button-crewe">Unmute</button>
-    </div>
+  <footer>
+    <p>&copy; 2024–2025 StreamTrain. All rights reserved.</p>
+  </footer>
 
-    <!-- Add more traincams as needed -->
-</div>
+  <script>
+    fetch('cams.json')
+      .then(response => response.json())
+      .then(cams => {
+        const container = document.getElementById('camera-container');
 
-<footer>
-    <p>&copy; 2024 StreamTrain. All rights reserved.</p>
-</footer>
+        cams.forEach(cam => {
+          const div = document.createElement('div');
+          div.className = 'traincam';
 
-<script>
-    // HLS.js support for m3u8 streams
-    if (Hls.isSupported()) {
-        // Brunel Cam
-        var brunelVideo = document.getElementById('brunel-cam');
-        var brunelHls = new Hls();
-        brunelHls.loadSource('https://5a6f905a69aae.streamlock.net/DWW_Brunel_Cam/_definst_/DWW_Brunel.stream/playlist.m3u8');
-        brunelHls.attachMedia(brunelVideo);
-        brunelHls.on(Hls.Events.MANIFEST_PARSED, function() {
-            // Start playing automatically
-            brunelVideo.play();
-        });
+          let media;
+          if (cam.type === 'youtube') {
+            media = document.createElement('iframe');
+            media.src = `https://www.youtube.com/embed/${cam.youtubeId}?autoplay=1&mute=1&controls=1`;
+            media.allow = 'autoplay; encrypted-media';
+            media.allowFullscreen = true;
+          } else {
+            media = document.createElement('video');
+            media.playsInline = true;
+            media.autoplay = true;
+            media.muted = true;
+            media.controls = false;
 
-        // Blenheim Cam
-        var blenheimVideo = document.getElementById('blenheim-cam');
-        var blenheimHls = new Hls();
-        blenheimHls.loadSource('https://5a6f905a69aae.streamlock.net/DWL_Blenheim_Cam/smil:DWL_Blenheim.smil/playlist.m3u8');
-        blenheimHls.attachMedia(blenheimVideo);
-        blenheimHls.on(Hls.Events.MANIFEST_PARSED, function() {
-            // Start playing automatically
-            blenheimVideo.play();
-        });
+            if (Hls.isSupported()) {
+              const hls = new Hls();
+              hls.loadSource(cam.src);
+              hls.attachMedia(media);
+              hls.on(Hls.Events.MANIFEST_PARSED, () => media.play());
 
-        // Crewe Heritage Centre Cam
-        var creweVideo = document.getElementById('crewe-cam');
-        var creweHls = new Hls();
-        creweHls.loadSource('https://paxman.railcam.co.uk/Crewe3_13496/index.m3u8');
-        creweHls.attachMedia(creweVideo);
-        creweHls.on(Hls.Events.MANIFEST_PARSED, function() {
-            // Start playing automatically
-            creweVideo.play();
-        });
-
-        // Stop playback when the video is paused and resume live when played again
-        [brunelVideo, blenheimVideo, creweVideo].forEach(video => {
-            video.addEventListener('pause', function() {
-                (video === brunelVideo ? brunelHls : video === blenheimVideo ? blenheimHls : creweHls).pause(); // Pause HLS streaming
-            });
-
-            video.addEventListener('play', function() {
-                // Resume live stream from the current live position
-                (video === brunelVideo ? brunelHls : video === blenheimVideo ? blenheimHls : creweHls).startLoad();
-            });
-        });
-
-    } else if (blenheimVideo.canPlayType('application/vnd.apple.mpegurl')) {
-        // For Safari, which natively supports m3u8
-        blenheimVideo.src = 'https://5a6f905a69aae.streamlock.net/DWL_Blenheim_Cam/smil:DWL_Blenheim.smil/playlist.m3u8';
-        blenheimVideo.addEventListener('loadedmetadata', function() {
-            blenheimVideo.play();
-        });
-
-        // Stop playback when the video is paused and resume live when played again
-        blenheimVideo.addEventListener('pause', function() {
-            blenheimVideo.pause(); // Ensure it doesn't allow buffering
-        });
-
-        blenheimVideo.addEventListener('play', function() {
-            blenheimVideo.play(); // Resume live stream from the current live position
-        });
-    }
-
-    // Fullscreen toggle functionality on video click
-    [brunelVideo, blenheimVideo, creweVideo].forEach(video => {
-        video.addEventListener('click', function() {
-            if (document.fullscreenElement) {
-                // Exit fullscreen if currently in fullscreen
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            } else {
-                // Enter fullscreen
-                if (video.requestFullscreen) {
-                    video.requestFullscreen();
-                } else if (video.webkitRequestFullscreen) { // Safari
-                    video.webkitRequestFullscreen();
-                } else if (video.msRequestFullscreen) { // IE/Edge
-                    video.msRequestFullscreen();
-                }
+              media.addEventListener('pause', () => hls.pause());
+              media.addEventListener('play', () => hls.startLoad());
+            } else if (media.canPlayType('application/vnd.apple.mpegurl')) {
+              media.src = cam.src;
+              media.addEventListener('loadedmetadata', () => media.play());
             }
+          }
+
+          media.addEventListener('click', () => {
+            if (document.fullscreenElement) {
+              document.exitFullscreen();
+            } else {
+              if (media.requestFullscreen) media.requestFullscreen();
+              else if (media.webkitRequestFullscreen) media.webkitRequestFullscreen();
+              else if (media.msRequestFullscreen) media.msRequestFullscreen();
+            }
+          });
+
+          div.appendChild(media);
+
+          const title = document.createElement('div');
+          title.className = 'traincam-title';
+          title.textContent = cam.title;
+          div.appendChild(title);
+
+          container.appendChild(div);
         });
-    });
-
-    // Mute/Unmute functionality for Brunel Cam
-    var muteButtonBrunel = document.getElementById('mute-button');
-    muteButtonBrunel.addEventListener('click', function() {
-        if (brunelVideo.muted) {
-            brunelVideo.muted = false;
-            muteButtonBrunel.textContent = 'Mute';
-        } else {
-            brunelVideo.muted = true;
-            muteButtonBrunel.textContent = 'Unmute';
-        }
-    });
-
-    // Mute/Unmute functionality for Blenheim Cam
-    var muteButtonBlenheim = document.getElementById('mute-button-blenheim');
-    muteButtonBlenheim.addEventListener('click', function() {
-        if (blenheimVideo.muted) {
-            blenheimVideo.muted = false;
-            muteButtonBlenheim.textContent = 'Mute';
-        } else {
-            blenheimVideo.muted = true;
-            muteButtonBlenheim.textContent = 'Unmute';
-        }
-    });
-
-    // Mute/Unmute functionality for Crewe Cam
-    var muteButtonCrewe = document.getElementById('mute-button-crewe');
-    muteButtonCrewe.addEventListener('click', function() {
-        if (creweVideo.muted) {
-            creweVideo.muted = false;
-            muteButtonCrewe.textContent = 'Mute';
-        } else {
-            creweVideo.muted = true;
-            muteButtonCrewe.textContent = 'Unmute';
-        }
-    });
-</script>
+      });
+  </script>
 
 </body>
 </html>
