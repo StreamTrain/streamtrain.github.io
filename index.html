@@ -70,6 +70,7 @@
       display: flex;
       flex-direction: column;
       transition: transform 0.2s;
+      cursor: pointer;
     }
 
     .traincam:hover {
@@ -79,7 +80,7 @@
     video, iframe {
       width: 100%;
       height: 180px;
-      cursor: pointer;
+      pointer-events: none;
       border: none;
     }
 
@@ -90,6 +91,25 @@
       font-weight: 600;
       color: #4CAF50;
       font-size: 1.1rem;
+    }
+
+    .fullscreen-player {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .fullscreen-player video, .fullscreen-player iframe {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
 
     footer {
@@ -117,68 +137,125 @@
     <!-- Cameras will be loaded dynamically from cams.json -->
   </main>
 
+  <div id="fullscreen-player" class="fullscreen-player" style="display: none;"></div>
+
   <footer>
     <p>&copy; 2024–2025 StreamTrain. All rights reserved.</p>
   </footer>
 
-  <script>
-    fetch('cams.json')
-      .then(response => response.json())
-      .then(cams => {
-        const container = document.getElementById('camera-container');
+  <style>
+  #fullscreen-player {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  #fullscreen-player video, #fullscreen-player iframe {
+    width: 90vw;
+    height: 90vh;
+    max-width: 1200px;
+    max-height: 675px; /* 16:9 aspect ratio */
+    background: black;
+  }
+</style>
 
-        cams.forEach(cam => {
-          const div = document.createElement('div');
-          div.className = 'traincam';
+<div id="fullscreen-player"></div>
 
-          let media;
-          if (cam.type === 'youtube') {
-            media = document.createElement('iframe');
-            media.src = `https://www.youtube.com/embed/${cam.youtubeId}?autoplay=1&mute=1&controls=1`;
-            media.allow = 'autoplay; encrypted-media';
-            media.allowFullscreen = true;
-          } else {
-            media = document.createElement('video');
-            media.playsInline = true;
-            media.autoplay = true;
-            media.muted = true;
-            media.controls = false;
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
+<script>
+  const fullscreenContainer = document.getElementById('fullscreen-player');
+
+  fetch('https://raw.githubusercontent.com/StreamTrain/streamtrain.github.io/refs/heads/main/cams.json')
+    .then(response => response.json())
+    .then(cams => {
+      const container = document.getElementById('camera-container');
+
+      cams.forEach(cam => {
+        const div = document.createElement('div');
+        div.className = 'traincam';
+
+        let media;
+        if (cam.type === 'youtube') {
+          media = document.createElement('iframe');
+          media.src = `https://www.youtube.com/embed/${cam.youtubeId}?autoplay=1&mute=1&controls=1`;
+          media.allow = 'autoplay; encrypted-media';
+          media.allowFullscreen = true;
+        } else {
+          media = document.createElement('video');
+          media.playsInline = true;
+          media.autoplay = true;
+          media.muted = true;
+          media.controls = false;
+          media.loop = true;
+
+          if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(cam.src);
+            hls.attachMedia(media);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => media.play());
+          } else if (media.canPlayType('application/vnd.apple.mpegurl')) {
+            media.src = cam.src;
+            media.addEventListener('loadedmetadata', () => media.play());
+          }
+        }
+
+        const title = document.createElement('div');
+        title.className = 'traincam-title';
+        title.textContent = cam.title;
+
+        div.appendChild(media);
+        div.appendChild(title);
+
+        div.addEventListener('click', () => {
+          fullscreenContainer.innerHTML = ''; // Clear old content
+          const clone = media.cloneNode(true);
+
+          // For video (HLS), re-setup playback for fullscreen
+          if (clone.tagName.toLowerCase() === 'video') {
+            clone.controls = true;
+            clone.muted = false;
+            clone.autoplay = true;
+            clone.loop = true;
+
+            // If Hls supported, re-initialize Hls for the clone
             if (Hls.isSupported()) {
               const hls = new Hls();
               hls.loadSource(cam.src);
-              hls.attachMedia(media);
-              hls.on(Hls.Events.MANIFEST_PARSED, () => media.play());
-
-              media.addEventListener('pause', () => hls.pause());
-              media.addEventListener('play', () => hls.startLoad());
-            } else if (media.canPlayType('application/vnd.apple.mpegurl')) {
-              media.src = cam.src;
-              media.addEventListener('loadedmetadata', () => media.play());
+              hls.attachMedia(clone);
+              hls.on(Hls.Events.MANIFEST_PARSED, () => clone.play());
+            } else {
+              clone.src = cam.src;
+              clone.addEventListener('loadedmetadata', () => clone.play());
             }
+          } else if (clone.tagName.toLowerCase() === 'iframe') {
+            // For YouTube iframe, unmute by replacing mute=1 with mute=0 in URL
+            clone.src = clone.src.replace('mute=1', 'mute=0');
           }
 
-          media.addEventListener('click', () => {
-            if (document.fullscreenElement) {
-              document.exitFullscreen();
-            } else {
-              if (media.requestFullscreen) media.requestFullscreen();
-              else if (media.webkitRequestFullscreen) media.webkitRequestFullscreen();
-              else if (media.msRequestFullscreen) media.msRequestFullscreen();
-            }
-          });
+          fullscreenContainer.style.display = 'flex';
+          fullscreenContainer.appendChild(clone);
 
-          div.appendChild(media);
-
-          const title = document.createElement('div');
-          title.className = 'traincam-title';
-          title.textContent = cam.title;
-          div.appendChild(title);
-
-          container.appendChild(div);
+          // Mute all small videos on page
+          document.querySelectorAll('video').forEach(v => v.muted = true);
         });
+
+        container.appendChild(div);
       });
-  </script>
+
+      fullscreenContainer.addEventListener('click', () => {
+        fullscreenContainer.innerHTML = '';
+        fullscreenContainer.style.display = 'none';
+      });
+    });
+</script>
+
 
 </body>
 </html>
