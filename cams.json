@@ -1,0 +1,52 @@
+[
+  {
+    "title": "Brunel Holiday Park, Dawlish",
+    "type": "hls",
+    "src": "https://5a6f905a69aae.streamlock.net/DWW_Brunel_Cam/_definst_/DWW_Brunel.stream/playlist.m3u8"
+  },
+  {
+    "title": "Blenheim, Dawlish",
+    "type": "hls",
+    "src": "https://5a6f905a69aae.streamlock.net/DWL_Blenheim_Cam_2/smil:DWL_Blenheim_Cam_2.smil/playlist.m3u8"
+  },
+  {
+    "title": "Crewe Heritage Centre (Manchester Line)",
+    "type": "youtube",
+    "youtubeId": "tV9CZT8r_34"
+  },
+  {
+    "title": "Banbury Station",
+    "type": "youtube",
+    "youtubeId": "1FsH5EeOppg"
+  },
+  {
+    "title": "Cramlington",
+    "type": "hls",
+    "src": "https://maybach.railcam.co.uk/Cramlington_720res/index.m3u8"
+  },
+  {
+    "title": "Flitwick",
+    "type": "hls",
+    "src": "https://maybach.railcam.co.uk/Flitwick_99123/index.m3u8"
+  },
+  {
+    "title": "Grateley",
+    "type": "hls",
+    "src": "https://paxman.railcam.co.uk/Grateley_93712/index.m3u8"
+  },
+  {
+    "title": "Hensall LC - KJB Models",
+    "type": "hls",
+    "src": "https://maybach.railcam.co.uk/Hensall_12532/index.m3u8"
+  },
+  {
+    "title": "Newcastle (Lumo)",
+    "type": "hls",
+    "src": "https://crossley.railcam.co.uk/hls/newcastle_lumo/index.m3u8?tkn=1625477949"
+  },
+  {
+    "title": "Towyn, North Wales",
+    "type": "youtube",
+    "youtubeId": "S-vjPPdib3w"
+  }
+]
