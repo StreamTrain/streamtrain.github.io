@@ -48,5 +48,90 @@
     "title": "Towyn, North Wales",
     "type": "youtube",
     "youtubeId": "S-vjPPdib3w"
+  },
+  {
+    "title": "Rhyl (main line view)",
+    "type": "youtube",
+    "youtubeId": "oaWAGymSleo"
+  },
+  {
+    "title": "Princes Risborough",
+    "type": "hls",
+    "src": "https://paxman.railcam.co.uk/Princes-Risborough_95234/index.m3u8"
+  },
+  {
+    "title": "Redruth (Scorrier) 2",
+    "type": "hls",
+    "src": "https://paxman.railcam.co.uk/kernow2_63812/index.m3u8"
+  },
+  {
+    "title": "Ryde Pier & The Solent",
+    "type": "youtube",
+    "youtubeId": "R1P9v9bEtuk"
+  },
+  {
+    "title": "The Royal Albert Bridge @ Saltash Cornwall",
+    "type": "youtube",
+    "youtubeId": "itG7PHrPSUw"
+  },
+  {
+    "title": "York ROC Camera No.1, Yorkshire UK - in Partnership with Network Rail | Railcam LIVE",
+    "type": "youtube",
+    "youtubeId": "vByZX49lCic"
+  },
+  {
+    "title": "Ribblehead Viaduct Free",
+    "type": "youtube",
+    "youtubeId": "Si73DJGaNsw"
+  },
+  {
+    "title": "Ribblehead Station Inn 1 Free",
+    "type": "youtube",
+    "youtubeId": "ugHHAzdq9Ss"
+  },
+  {
+    "title": "Helwith Bridge Cam1",
+    "type": "youtube",
+    "youtubeId": "zlooRb-FvcU"
+  },
+  {
+    "title": "Helwith Bridge Cam2",
+    "type": "youtube",
+    "youtubeId": "yoD8A5OpFZw"
+  },
+  {
+    "title": "Settle Signal Box",
+    "type": "youtube",
+    "youtubeId": "fgMHP925xms"
+  },
+  {
+    "title": "Shrewsbury",
+    "type": "hls",
+    "src": "https://paxman.railcam.co.uk/Shrewsbury_10933/index.m3u8"
+  },
+  {
+    "title": "Teign Estuary Cam @ Teignmouth - Railcam UK",
+    "type": "youtube",
+    "youtubeId": "ug3AO8rn0IE"
+  },
+  {
+    "title": "Uphall",
+    "type": "hls",
+    "src": "https://maybach.railcam.co.uk/Uphall_96341/index.m3u8"
+  },
+  {
+    "title": "Wingfield Station",
+    "type": "hls",
+    "src": "https://maybach.railcam.co.uk/Wingfield_59263-Cam1/video.m3u8"
+  },
+  {
+    "title": "York North (Skelton Jn.) 2",
+    "type": "hls",
+    "src": "https://paxman.railcam.co.uk/York2_59285/index.m3u8"
+  },
+  {
+    "title": "York ROC 1 (Station)",
+    "type": "hls",
+    "src": "https://paxman.railcam.co.uk/YorkROC1_59459/index.m3u8"
   }
 ]
